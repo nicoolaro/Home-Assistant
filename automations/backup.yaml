@@ -1,0 +1,20 @@
+- id: autobackup
+  alias: Weekly Hassio backup
+  initial_state: true
+  trigger:
+  - platform: time
+    at: 00:05
+  condition:
+  - condition: time
+    weekday:
+    - mon
+  action:
+  - data_template:
+      name: Backup {{ now().strftime('%Y-%m-%d') }} running HA version {{ states('sensor.current_version')
+        }}
+    service: hassio.snapshot_full
+  - service: notify.nokkia
+    data_template:
+      title: Hass.io Backup!
+      message: '''Backup created with the name: Backup {{ now().strftime(''%Y-%m-%d'')
+        }} running HA version {{ states(''sensor.current_version'') }}''  '
