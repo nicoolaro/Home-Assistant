@@ -1,0 +1,103 @@
+### nodemcu controlling mirror ws2812 led strip & pir hallway sensor & main door reed switch & hallway night light ###
+
+esphome:
+  name: nodemcu_2
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: !secret SH158_wifi
+  password: !secret SH158_wifi_password
+  manual_ip:
+    static_ip: 192.168.1.32
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+#switch:
+#  - platform: gpio
+#    name: "turnon led light"
+#    pin:
+#      number: D6
+#      inverted: no
+sensor:
+#  - platform: dht
+#    model: DHT22
+#    pin: D2
+#    temperature:
+#      name: esphome_nodemcu_1_temperature
+#    humidity:
+#      name: esphome_nodemcu_1_humidity
+#    update_interval: 60s
+  - platform: adc
+    pin: VCC
+    name: esphome_nodemcu_1_VCC_Voltage
+  - platform: uptime
+    name: esphome_nodemcu_1_uptime
+light:
+  - platform: fastled_clockless
+    chipset: WS2812B
+    pin: GPIO15
+    rgb_order: GRB
+    num_leds: 90
+    color_correct: [80%, 80%, 80%]
+    name: "FastLED WS2811 Light"
+    effects:
+      - addressable_rainbow:
+      - addressable_rainbow:
+          name: Rainbow Effect With Custom Values
+          speed: 20
+          width: 30
+      - addressable_color_wipe:
+      - addressable_scan:
+      - addressable_scan:
+          name: Scan Effect With Custom Values
+          move_interval: 25ms
+      - addressable_twinkle:
+      - addressable_random_twinkle:
+      - addressable_random_twinkle:
+          name: Random Twinkle Effect With Custom Values
+          twinkle_probability: 10%
+          progress_interval: 38ms
+      - addressable_fireworks:
+      - addressable_fireworks:
+          name: Fireworks Effect With Custom Values
+          update_interval: 32ms
+          spark_probability: 10%
+          use_random_color: false
+          fade_out_rate: 120
+      - addressable_flicker:
+      - addressable_flicker:
+          name: Flicker Effect With Custom Values
+          update_interval: 16ms
+          intensity: 5%
+  - platform: fastled_clockless
+    chipset: WS2812B
+    pin: GPIO5
+    rgb_order: GRB
+    num_leds: 5
+    color_correct: [95%, 95%, 95%]
+    default_transition_length: 500ms
+    name: "Entry light"
+binary_sensor:
+  - platform: gpio
+    pin: 
+      number: D5
+    name: "Hallway motion"
+    device_class: motion
+  - platform: gpio
+    pin: 
+      number: D2
+      mode: INPUT_PULLUP
+      inverted: False
+    name: "Entry Door"
+    device_class: door
+  - platform: status
+    name: esphome_nodemcu_1_status
