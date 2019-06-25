@@ -1,1 +1,203 @@
 ## to be created## #
+homeassistant:
+  # Name of the location where Home Assistant is running
+  name: Home
+  # Location required to calculate the time the sun rises and sets
+  latitude: *****
+  longitude: *****
+  # Impacts weather/sunrise data (altitude above sea level in meters)
+  elevation: 0
+  # metric for Metric, imperial for Imperial
+  unit_system: metric
+  # Pick yours from here: http://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+  time_zone: Europe/Belgrade
+  # Customization file
+  customize: !include customize.yaml
+  #addedfolder to look into
+#  packages: !include_dir_named packages
+# Configure a default setup of Home Assistant (frontend, api, etc)
+  whitelist_external_dirs:
+    - /config
+#resources:
+#  - url: /local/custom_ui/dark-sky-weather-card.js?v=7.1
+#    type: module
+default_config:
+frontend:
+  themes: !include themes.yaml
+
+shopping_list:
+
+plant:
+  ficus_benjamina:
+    sensors:
+      moisture: sensor.plant_1_saturation
+      battery: sensor.my_sensor_battery
+      temperature: sensor.temperature_158d0002c90c5c
+      conductivity: sensor.plant_1_voltage
+      brightness: sensor.illumination_158d0002ea1b8d
+    min_moisture: 20
+    max_moisture: 100
+# Show the introduction message on startup.
+#introduction:
+
+# Uncomment this if you are using SSL/TLS, running in Docker container, etc.
+# http:
+#   base_url: example.duckdns.org:8123
+
+# Sensors
+#sensor:
+  # Weather prediction
+#  - platform: yr
+
+# Text to speech
+#device_tracker:
+#  - platform: bluetooth_tracker
+circadian_lighting:
+
+custom_updater:
+  track:
+    - components
+    - cards
+  show_installable: true
+  card_urls:
+    - https://raw.githubusercontent.com/kalkih/mini-graph-card/master/tracker.json
+    - https://raw.githubusercontent.com/benct/lovelace-attribute-entity-row/master/tracker.json
+
+## tracking mobile phone ##
+device_tracker:
+  - platform: mikrotik
+    host: 192.168.1.1
+    username: *****
+    password: *****
+    interval_seconds: 60
+    consider_home: 0:03:00
+    new_device_defaults:
+      track_new_devices: false
+      hide_if_away: false
+      
+panel_iframe:
+  kodi:
+    title: Kodi
+    url: http://192.168.1.15:8080
+    icon: mdi:kodi
+    
+google:
+  client_id: !secret google_cal_api
+  client_secret: !secret google_cal_secret
+
+http:
+  ip_ban_enabled: true
+  login_attempts_threshold: 3
+
+googlehome:
+  devices:
+    - host: 192.168.1.100
+    
+google_assistant:
+  project_id: ******
+  api_key: ******
+  exposed_domains:
+    - media_player
+    - switch
+    - light
+    - script
+    - binary_sensor
+    - sensor
+    
+tts:
+  - platform: google_translate
+    service_name: google_say
+    language: 'en-us'
+    time_memory: 300
+
+  
+telegram_bot:
+  - platform: polling
+    api_key: !secret telegram_key
+    allowed_chat_ids:
+     - ******
+notify:
+  - name: nokkia
+    platform: telegram
+    chat_id: ******
+  - platform: kodi
+    name: kodinotification
+    host: 192.168.1.15
+    port: 8080
+    username: ******
+    password: ******
+    
+weather: 
+  - platform: darksky
+    api_key: *******
+    mode: daily    
+
+media_player:
+  - platform: kodi
+    name: kodi_livingroom
+    host: 192.168.1.15
+    port: 8080
+    username: ******
+    password: ******
+  - platform: mpd
+    name: hassio_audio
+    host: 192.168.1.10
+
+yeelight:
+  devices:
+    192.168.1.112:
+      name: Bed Light
+      transition: 1000
+      save_on_change: true
+light:
+  - platform: flux_led
+    devices:
+      192.168.1.114:
+        mode: "rgbw"
+        name: Door Led
+xiaomi_aqara:
+  discovery_retry: 5
+  gateways:
+    - key: ******
+#smartir:
+#  update_branch: rc
+  
+history: !include history.yaml
+recorder: !include recorder.yaml
+group: !include groups.yaml
+switch: !include_dir_merge_list new_switches/
+automation: !include_dir_merge_list new_automation/
+script: !include_dir_merge_named new_scripts/
+sensor: !include_dir_merge_list new_sensors/
+
+
+#binary_sensor:
+#  - platform: rpi_gpio
+#    ports:
+#      4: PIR Living room movement
+      
+logger:
+  default: error
+  logs:
+    homeassistant.components.http.ban: warning
+    homeassistant.components.recorder: info
+    homeassistant.components.script: info
+
+
+input_datetime:
+  vacation_departure:
+    name: vacation departure
+    has_date: true
+    has_time: true
+  vacation_arrival:
+    name: vacation arrival
+    has_date: true
+    has_time: true
+  only_date:
+    name: Input with only date
+    has_date: true
+    has_time: false
+  only_time:
+    name: Input with only time
+    has_date: false
+    has_time: true    
