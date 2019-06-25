@@ -1,0 +1,30 @@
+#https://home-assistant.io/components/sensor/
+
+####################################################
+#                                                  #
+#                    FILESIZE                      #
+#                                                  #
+####################################################
+
+#https://www.home-assistant.io/components/sensor.filesize/
+- platform: filesize
+  file_paths:
+#    - /config/home-assistant_v2.db
+    - /config/home-assistant.log
+- platform: version
+####################################################
+#                                                  #
+#            END OF CONFIGURATION FILE             #
+#                                                  #
+####################################################
+
+### pulling MariaDB size from antoher RPI3 running DietPI ####
+
+- platform: sql
+  db_url: mysql://******:******@192.168.1.15:3306/hassio?charset=utf8mb4
+  queries:
+    - name: Maria DB size
+      query: 'SELECT table_schema AS "Database", ROUND (SUM(data_length + index_length) / 1024 / 1024,2) AS "Size (MB)" FROM information_schema.TABLES WHERE table_schema="hassio" GROUP BY table_schema;'
+      column: 'Size (MB)'
+      unit_of_measurement: MB
+
