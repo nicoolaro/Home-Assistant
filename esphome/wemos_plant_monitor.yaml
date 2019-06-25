@@ -1,0 +1,107 @@
+esphome:
+  name: wemos_plantmonitor
+  platform: ESP8266
+  board: d1_mini
+
+wifi:
+  ssid: !secret SH158_wifi
+  password: !secret SH158_wifi_password
+  manual_ip:
+    static_ip: 192.168.1.31
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+# Enable logging
+logger:
+
+ota:
+
+# Enable Home Assistant API
+#api:
+mqtt:
+  discovery: true
+  discovery_prefix: homeassistant
+  client_id: plantsensor_1
+  broker: 192.168.1.10
+  username: ******
+  password: ******
+  birth_message:
+    topic: wemos_plantmonitor/status
+    payload: online
+  will_message:
+    topic: wemos_plantmonitor/status
+    payload: online
+  on_message:
+    topic: wemos_plantmonitor/ota_mode
+    then:
+      - if:
+          condition:
+            lambda: 'return x == "ON";'
+          then:
+            - deep_sleep.prevent: deep_sleep_1
+      - if:
+          condition:
+            lambda: 'return x == "OFF";'
+          then:
+            - deep_sleep.enter: deep_sleep_1
+
+deep_sleep:
+  id: deep_sleep_1
+  #If it takes very long time for the API to connect we have some time
+  run_duration: 30sec
+  #Sleep for a year 8760h
+  sleep_duration: 59min
+
+switch:
+  - platform: restart
+    name: "Wemos_PlantMonitor_restart"
+
+#Get information about the battery status, not yet implemented good enough
+sensor:
+#  - platform: adc
+#    pin: VCC
+#    name: "Plant_1 voltage"
+#    icon: "mdi:flower"
+  - platform: adc 
+    pin: A0
+    id: moisture
+    update_interval: 5s
+    internal: true
+    accuracy_decimals: 1
+    filters:
+#      - sliding_window_moving_average: # averages the last 10 results, probably overkill
+#          window_size: 10
+#          send_every: 10
+      - lambda: |-
+          if (x > 0.70) {
+            return 0;
+          } else if (x < 0.50) {
+            return 100;
+          } else {
+            return (0.70-x) / (0.70-0.5) * 100.0;
+          }
+  - platform: template
+    name: plant_1_saturation
+    id: plant1
+    unit_of_measurement: "% "
+    icon: "mdi:water-percent"
+    update_interval: 10s
+    accuracy_decimals: 1
+    lambda: |-
+      return id(moisture).state;
+#interval:
+#  - interval: 10s # if you add more outputs, increase this time as appropriate
+#    then:
+#      - component.update: plant1 # update sensor 1's reading in HA
+
+#    initial_value: 'false'
+
+#Since I don't know when the HA api will connect or how I can force it I just have to check now and then. Not to often since that will avoid the connection to be made
+#interval:
+#  - interval: 7s
+#    then:
+#      - component.update: plant1 # update sensor 1's reading in HA
+
+binary_sensor:
+  - platform: status
+    name: Wemos_PlantMonitor Status
