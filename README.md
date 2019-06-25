@@ -33,8 +33,8 @@ Sensors:
 Network:
 - Mikrotik HAP lite2 and DD-WRT on an old TP-Link as routers.
 
-- Sonoff basic x 3
-- Broadlink RM Mini
+- Sonoff basic x 3 #flashed with EspHome https://esphome.io/devices/sonoff_basic.html
+- Broadlink RM Mini 
 - Scripts for Kodi and various light/videos, on Kodi as an ambient experience
 - Google home mini 
 - Telegram as a way of providing notifications to the phone
