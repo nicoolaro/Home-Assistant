@@ -1,0 +1,135 @@
+#########################################################
+#                                                       #
+#                 COMING/LEAVING HOME                   #
+#                                                       #
+#########################################################
+
+- id: '1552914899741'
+  alias: Coming Home
+  trigger:
+  - entity_id: binary_sensor.door_window_sensor
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.motion_sensor
+    state: 'off'
+  - after: '20:00'
+    before: 07:00
+    condition: time
+  action:
+  - delay:
+      seconds: 3
+  - data:
+      entity_id: switch.esphome_sonoff01_relay
+    service: switch.turn_on
+  - delay:
+      seconds: 1
+  - data:
+      message: Welcome home
+    entity_id: media_player.googlehome1578
+    service: tts.google_say
+- id: '1552916070844'
+  alias: Leaving Home
+  trigger:
+  - entity_id: binary_sensor.door_window_sensor
+    from: 'off'
+    platform: state
+    to: 'on'
+  condition:
+  - condition: state
+    entity_id: binary_sensor.motion_sensor
+    state: 'on'
+  action:
+  - data:
+      entity_id: switch.esphome_sonoff01_relay
+    service: switch.turn_off
+    
+- id: 'MainDoorsound'
+  alias: Main Door Sound
+  trigger:
+  - entity_id: binary_sensor.entry_door
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+#  - service: media_player.turn_on
+#    data:
+#        entity_id: media_player.googlehome1578
+  - service: media_player.volume_set
+    data:
+      entity_id: media_player.googlehome1578
+      volume_level: 0.6
+  - service: media_player.play_media
+    entity_id: media_player.googlehome1578
+    data:
+      media_content_id: http://192.168.1.10:8123/local/Doorbell.mp3
+      media_content_type: 'music'
+      
+- id: 'BalconyDoorsound'
+  alias: Balcony Door Sound
+  trigger:
+  - entity_id: binary_sensor.door_window_sensor
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+#  - service: media_player.turn_on
+#    data:
+#        entity_id: media_player.googlehome1578
+  - service: media_player.volume_set
+    data:
+      entity_id: media_player.googlehome1578
+      volume_level: 0.6
+  - service: media_player.play_media
+    entity_id: media_player.googlehome1578
+    data:
+      media_content_id: http://192.168.1.10:8123/local/ElevatorDing.mp3
+      media_content_type: 'music'
+      
+- id: 'touchsensortv'
+  alias: Turning TV with touch
+  trigger:
+  - entity_id: binary_sensor.esphome_nodemcu_1_touch
+    from: 'off'
+    platform: state
+    to: 'on'
+    for:
+      seconds: 1
+#    for: 5 
+  action:
+  - data:
+      entity_id: switch.tv_lg
+    service: switch.turn_on
+  - data:
+      entity_id: switch.tv_box
+    service: switch.turn_on
+     
+- id: 'touchsensortvoff'
+  alias: Turning TV OFF with touch
+  trigger:
+  - entity_id: binary_sensor.esphome_nodemcu_1_touch
+    from: 'off'
+    platform: state
+    to: 'on'
+    for:
+      seconds: 5
+#    for: 5 
+  action:
+  - service: switch.turn_off
+    entity_id: switch.tv_lg
+  - service: switch.turn_off
+    entity_id: switch.tv_box
+    
+- id: 'tvboxoff'
+  alias: TV OFF On with touch
+  trigger:
+  - entity_id: binary_sensor.esphome_nodemcu_1_touch
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+  - service: switch.turn_on
+    entity_id: switch.tv_lg
+      
