@@ -7,15 +7,23 @@ Setup:
 Home Assistant:
 - Hass.io on RPI2 +16GB SD Sandisk ( database MariaDB is on another RPI3 )
 - RPI 3B+ running Dietpi + Kodi + Transmission(media on external HD) .  MariaDB separated to USB Stick attached to RPI
-
+ 
+ addons:
+  - EspHome https://github.com/esphome/hassio
+  - Mopidy https://github.com/assada/hassio-addons/tree/master/mopidy
+  - Mosquitto broker #official
+  - SSH server  #official
+  - NGINX Home Assistant SSL proxy #official
+  - Samba #official
 
 Light:
-- Addresable led WS2812 running on Nodemcu
-- 2 strips on MagicHome controller and IR controller.
+- Addresable 3m (90 leds) WS2812 running on Nodemcu
+- RGBWW 4m strip 240 leds on MagicHome controller 
+- RGB 3m strip on IR controller.
 - RGB Yeelight v2
 
 Sensors:
-- Door sensor (reed switch) attached to Nodemcu which is powering WS2812 , and PIR sensor too
+- Door sensor (reed switch) attached to Nodemcu which is running WS2812 & PIR sensor 
 - Capacitive soil sensors attached to  Wemos D1 mini
 - Aqara door/window sensor 
 - Aqara motion sensor 
@@ -28,7 +36,7 @@ Network:
 - Sonoff basic x 3
 - Broadlink RM Mini
 - Scripts for Kodi and various light/videos, on Kodi as an ambient experience
-- Google home mini to rule them all
+- Google home mini 
 - Telegram as a way of providing notifications to the phone
 
 to be continued....
