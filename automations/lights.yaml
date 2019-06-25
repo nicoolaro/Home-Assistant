@@ -1,0 +1,80 @@
+- id: entryon
+  alias: Kitchen lights ON
+  trigger:
+  - entity_id: binary_sensor.motion_sensor_158d0002ea1b8d
+    platform: state
+    to: 'on'
+  condition:
+  - after: '20:00'
+    before: 07:00
+    condition: time
+  - condition: numeric_state
+    entity_id: sensor.illumination_158d0002ea1b8d
+    below: 20
+  action:
+  - data:
+      entity_id: light.gateway_light
+      rgb_color: [255,102,30]
+    service: light.turn_on
+- id: entryoff
+  alias: Kitchen lights OFF
+  trigger:
+  - entity_id: binary_sensor.motion_sensor_158d0002ea1b8d
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - data:
+      entity_id: light.gateway_light
+    service: light.turn_off
+    
+#### Hallway light motion automation ###   
+
+- id: hallwayon
+  alias: Hallway lights ON
+  trigger:
+  - entity_id: binary_sensor.hallway_motion
+    platform: state
+    to: 'on'
+  condition:
+  - after: '20:00'
+    before: 07:00
+    condition: time
+  action:
+   - data:
+      entity_id: light.entry_light
+      rgb_color: [255,255,108]
+     service: light.turn_on
+   - delay: '00:00:15'
+   - data:
+       entity_id: light.entry_light
+     service: light.turn_off
+   
+- id: hallwayoff
+  alias: Hallway lights OFF
+  trigger:
+  - entity_id: binary_sensor.hallway_motion
+    from: 'on'
+    platform: state
+    to: 'off'
+  condition: []
+  action:
+  - delay: '00:00:05'
+  - data:
+      entity_id: light.entry_light
+    service: light.turn_off
+
+- id: 'gtewayringtone'
+  alias: Trigger gateway Ringtone
+  trigger:
+  - entity_id: binary_sensor.door_window_sensor_158d000309e195
+    from: 'off'
+    platform: state
+    to: 'on'
+  action:
+  - data:
+      gw_mac: ********
+      ringtone_id: '10001'
+      ringtone_vol: '25'
+    service: xiaomi_aqara.play_ringtone
