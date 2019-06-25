@@ -1,0 +1,11 @@
+## turn on lamp before sunset##
+- id: '155465712345454'
+  alias: sunsetoffset
+  trigger:
+  - event: sunset
+    platform: sun
+    offset: "-00:30:00"
+  condition: []
+  action:
+    service: switch.turn_on
+    entity_id: switch.esphome_sonoff01_relay
