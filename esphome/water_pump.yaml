@@ -1,0 +1,88 @@
+esphome:
+  name: wemos_water_pump
+  platform: ESP8266
+  board: d1_mini
+  on_boot:
+      then:
+        - delay: 20s
+        - switch.turn_on: pump_on
+        - delay: 3s
+        - switch.turn_off: pump_on
+
+wifi:
+  ssid: "*******"
+  password: !secret SH158_wifi_password
+  manual_ip:
+    static_ip: 192.168.1.47
+    gateway: 192.168.1.1
+    subnet: 255.255.255.0
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+sensor:
+#  - platform: adc
+#    pin: A0
+#    name: "Plant_1 soil humidity"
+#    icon: "mdi:flower"
+  - platform: adc 
+    pin: A0
+    id: moisture
+    update_interval: 10s
+    internal: true # Don't expose this sensor to HA, the template sensors will do that
+    accuracy_decimals: 1
+    filters:
+#      - sliding_window_moving_average:
+#          window_size: 10
+#          send_every: 10
+      - lambda: |-
+          if (x > 0.80) {
+            return 0;
+          } else if (x < 0.50) {
+            return 100;
+          } else {
+            return (0.80-x) / (0.80-0.5) * 100.0;
+          }
+   
+  - platform: template
+    name: "Plant 2 Soil Saturation"
+    id: plant2
+    unit_of_measurement: "%"
+    icon: "mdi:water-percent"
+    update_interval: never
+    accuracy_decimals: 0
+    lambda: |-
+      return id(moisture).state;  
+
+#updates above template to HA #
+interval:
+  - interval: 5sec
+    then:
+      - component.update: plant2
+      
+# pull gpio high and drive motor and sensor#      
+output:
+  - platform: gpio
+    pin: D6
+    id: 'pump_output'
+  - platform: gpio
+    pin: D7
+    id: 'saturation_output'
+switch:
+  - platform: output
+    name: "Saturation Sensor On"
+    output: 'saturation_output'
+    id: 'saturation_on'
+  - platform: output
+    name: "Water pump On"
+    output: 'pump_output'
+    id: 'pump_on'
+    
+deep_sleep:
+  run_duration: 4min
+  sleep_duration: 1435min
